@@ -1,0 +1,20 @@
+# Ignore Python bytecode and cache
+__pycache__/
+*.py[cod]
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Virtual environment folders
+env/
+venv/
+
+# Ignore macOS specific files
+.DS_Store
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+
+# Ignore Jupyter Notebook's hidden files
+*.ipynb_checkpoints/
