@@ -7,6 +7,9 @@
 ## Project Overview
 The goal of this project is to construct and analyse a trigram-based model of the English language and  create a client-side version of the ELIZA chatbot and deploying it to GitHub Pages.. It was finished in the notebook trigrams.ipynb. Python's built-in library is used for all jobs; no third-party libraries or APIs are used. The notebook adheres to Python coding standards for readability and efficiency and offers concise code explanations in Markdown cells.
 
+## Website Link
+https://keemo01.github.io/emerging/
+
 
 ## Tasks
 ## Task 1 - Third-Order Letter Approximation Model
