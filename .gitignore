@@ -18,5 +18,3 @@ venv/
 
 # Ignore Jupyter Notebook's hidden files
 *.ipynb_checkpoints/
-
-trigrams.json

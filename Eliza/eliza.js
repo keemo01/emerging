@@ -54,10 +54,11 @@ function startNewChat() {
 }
 
 // Updates the chat history list in the sidebar
+// Updates the chat history list in the sidebar
 function updateChatHistoryList() {
     const chatHistoryList = document.getElementById('chat-history-list');
     chatHistoryList.innerHTML = '';
-    
+
     // Sort chats by timestamp and display in the sidebar
     context.chats.sort((a, b) => b.timestamp - a.timestamp).forEach(chat => {
         const li = document.createElement('li');
@@ -65,7 +66,7 @@ function updateChatHistoryList() {
         if (chat.id === context.currentChatId) {
             li.classList.add('active');
         }
-        
+
         // Create chat preview text
         const previewName = chat.userName || 'New Chat';
         const timestamp = new Intl.DateTimeFormat('en-US', {
@@ -74,26 +75,69 @@ function updateChatHistoryList() {
             hour: 'numeric',
             minute: 'numeric'
         }).format(new Date(chat.timestamp));
-        
+
+        // Chat item structure
         li.innerHTML = `
             <div class="chat-preview">
                 <span class="chat-title">${previewName}</span>
                 <span class="chat-timestamp">${timestamp}</span>
             </div>
+            <div class="chat-actions">
+                <button class="rename-btn">Rename</button>
+                <button class="delete-btn">Delete</button>
+            </div>
         `;
-        
+
         // Switch to the clicked chat when selected
-        li.addEventListener('click', () => switchToChat(chat.id));
+        li.querySelector('.chat-preview').addEventListener('click', () => switchToChat(chat.id));
+
+        // Add event listener for renaming
+        li.querySelector('.rename-btn').addEventListener('click', () => renameChat(chat.id));
+
+        // Add event listener for deleting
+        li.querySelector('.delete-btn').addEventListener('click', () => deleteChat(chat.id));
+
         chatHistoryList.appendChild(li);
     });
 }
+
+// Renames a chat tab
+function renameChat(chatId) {
+    const chat = context.chats.find(c => c.id === chatId);
+    if (!chat) return;
+
+    // Prompt user for new chat name
+    const newName = prompt('Enter a new name for this chat:', chat.userName || 'New Chat');
+    if (newName && newName.trim().length > 0) {
+        chat.userName = newName.trim();
+        updateChatHistoryList();
+    }
+}
+
+// Deletes a chat tab
+function deleteChat(chatId) {
+    if (confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
+        // Remove the chat from context
+        context.chats = context.chats.filter(chat => chat.id !== chatId);
+
+        // Reset current chat if the deleted chat was active
+        if (context.currentChatId === chatId) {
+            context.currentChatId = context.chats.length > 0 ? context.chats[0].id : null;
+            document.getElementById('chat-history').innerHTML = '';
+        }
+
+        // Update chat list
+        updateChatHistoryList();
+    }
+}
+
 
 // Switches to the selected chat and reloads the conversation history
 function switchToChat(chatId) {
     context.currentChatId = chatId;
     const chat = context.chats.find(c => c.id === chatId);
     
-    // Updates UI and reloads the chat history
+    // Updates the UI and reloads the chat history
     document.getElementById('chat-history').innerHTML = '';
     updateChatHistoryList();
     
@@ -108,7 +152,7 @@ function getCurrentChat() {
     return context.chats.find(chat => chat.id === context.currentChatId);
 }
 
-// Handles the processing of user input and generates a response
+// Handles the user input and generates a resaponse based on that
 function processUserInput() {
     const userInput = document.getElementById('user-input');
     const chatHistory = document.getElementById('chat-history');
@@ -123,7 +167,7 @@ function processUserInput() {
     // Save user message in conversation history
     currentChat.conversationHistory.push({role: 'user', content: userMessage});
 
-    // Generate ELIZA's response based on the user input
+    // Generates a response based on the user input
     const elizaResponse = getElizaResponse(userMessage, currentChat);
 
     setTimeout(() => {
@@ -140,33 +184,97 @@ function processUserInput() {
     chatHistory.scrollTop = chatHistory.scrollHeight;
 }
 
-// Generates a response based on the user's input and mood
+// Creates a response based on the input and mood of the user.
 function getElizaResponse(input, chat) {
-    // If the user's name is not yet known, ask for it
+    // Normalize input for easier pattern matching
+    const normalizedInput = input.toLowerCase().trim();
+
+    // Request the user's name if you don't already know it.
     if (!chat.userName) {
-        chat.userName = extractName(input); // Extract name from user input
-        return `It's great to meet you, ${chat.userName}! I'm an AI assistant, and I'm here to listen and provide support. How are you feeling today?`;
+        chat.userName = extractName(input) || "friend";
+        return `Hello! I'm ELIZA. It's wonderful to meet you, ${chat.userName}! What would you like to talk about today?`;
     }
 
-    // If the user's name is known, respond based on their mood
-    if (input.match(/\b(sad|depressed|unhappy|down)\b/i)) {
-        return `I'm really sorry to hear you're feeling this way, ${chat.userName}. Dealing with sadness or depression can be very difficult. What do you think is contributing to these feelings? I'm here to listen and provide support.`;
-    } else if (input.match(/\b(happy|good|excited|great)\b/i)) {
-        return `That's wonderful to hear, ${chat.userName}! I'm so glad you're feeling happy and positive. What's been the highlight of your day so far? I'd love to hear more about what's bringing you joy.`;
-    } else if (input.match(/\b(stress|anxious|nervous)\b/i)) {
-        return `It sounds like you're dealing with a lot of stress and anxiety, ${chat.userName}. I understand how challenging that can be. Is there something specific that's causing you to feel this way? I'm here to listen and provide any support or suggestions I can.`;
-    } else if (input.match(/\b(help|advice|guidance)\b/i)) {
-        return `I'm here to help in any way I can, ${chat.userName}. What kind of help or advice are you looking for? I'll do my best to provide a thoughtful and useful response.`;
-    } else if (input.match(/\b(goals|dreams|aspirations)\b/i)) {
-        return `That's a great question, ${chat.userName}. Exploring our goals and dreams can be really fulfilling. What are some of your key aspirations in life? I'd be happy to discuss ways you might work towards achieving them.`;
-    } else if (input.match(/\b(relationships|friends|family)\b/i)) {
-        return `Relationships can be a really important part of our lives, ${chat.userName}. How are the important relationships in your life going? I'm happy to listen and provide a supportive perspective if you'd like to discuss any challenges or joys you're experiencing.`;
-    } else {
-        return `I'm listening, ${chat.userName}. Please feel free to share what's on your mind. I'm here to provide a supportive and non-judgmental space for you to express yourself.`;
+    // Using additional replies in the response patterns
+    const responsePatterns = [
+        {
+            patterns: [/\b(sad|depressed|unhappy|down|low|crying|miserable|heartbroken)\b/],
+            responses: [
+                `I'm really sorry you're feeling down, ${chat.userName}. Can you tell me more about what's troubling you?`,
+                `It sounds like you're struggling right now, ${chat.userName}. I'm here to listen if you want to share.`,
+                `Feeling sad can be overwhelming. Talking about it might help. What’s on your mind?`
+            ]
+        },
+        {
+            patterns: [/\b(happy|good|excited|great|wonderful|joyful|delighted|thrilled)\b/],
+            responses: [
+                `I'm so glad to hear that you're feeling happy, ${chat.userName}! What's been making your day so great?`,
+                `Your positivity is inspiring, ${chat.userName}. Want to tell me more about it?`,
+                `Happiness is a gift. What’s been bringing you joy lately, ${chat.userName}?`
+            ]
+        },
+        {
+            patterns: [/\b(stress|anxious|nervous|worried|overwhelmed|pressured|panicking)\b/],
+            responses: [
+                `Feeling stressed can be difficult to handle, ${chat.userName}. What's been on your mind?`,
+                `Stress can take a toll on anyone. Would you like to talk about what's causing it?`,
+                `Let's take it one step at a time, ${chat.userName}. What's been making you feel this way?`
+            ]
+        },
+        {
+            patterns: [/\b(help|advice|guidance|support|assist|aid)\b/],
+            responses: [
+                `I'm here for you, ${chat.userName}. What kind of help do you need?`,
+                `Support is important, and I'm here to provide it. Tell me more about what you're looking for.`,
+                `Reaching out for help is a strong first step. What’s on your mind, ${chat.userName}?`
+            ]
+        },
+        {
+            patterns: [/\b(goals|dreams|aspirations|future|plans|ambitions)\b/],
+            responses: [
+                `Dreams are powerful, ${chat.userName}. What goals are you working toward right now?`,
+                `Talking about goals can be exciting! What’s your biggest aspiration at the moment, ${chat.userName}?`,
+                `Your future is full of possibilities, ${chat.userName}. What plans are you most excited about?`
+            ]
+        },
+        {
+            patterns: [/\b(relationships|friends|family|love|partner|bond|connection)\b/],
+            responses: [
+                `Relationships can be meaningful and complex, ${chat.userName}. Would you like to share more about yours?`,
+                `Connecting with others is so important. How are your relationships these days, ${chat.userName}?`,
+                `It sounds like relationships are on your mind. What thoughts would you like to share about them, ${chat.userName}?`
+            ]
+        }
+    ];
+
+    // Check for specific pattern matches
+    for (const pattern of responsePatterns) {
+        if (pattern.patterns.some(p => p.test(normalizedInput))) {
+            return pattern.responses[Math.floor(Math.random() * pattern.responses.length)];
+        }
     }
+
+    // Enhanced fallback responses
+    const fallbackResponses = [
+        `That's interesting, ${chat.userName}. Could you tell me more?`,
+        `I'm listening, ${chat.userName}. What else is on your mind?`,
+        `Can you elaborate on that, ${chat.userName}?`,
+        `Your perspective is intriguing, ${chat.userName}. Please continue.`,
+        `I’m here for you, ${chat.userName}. What else would you like to talk about?`
+    ];
+
+   // In the event that no pattern match, return a random fallback response.
+    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
 }
 
-// ADDS a message to the chat history
+
+// Helper function to extract name (can be kept the same as in the original code)
+function extractName(input) {
+    const nameMatch = input.match(/(?:I'm|I am|name is|call me|my name is) (\w+)/i);
+    return nameMatch ? nameMatch[1] : null;
+}
+
+// Adds a message to the chat history
 function appendMessage(sender, message) {
     const chatHistory = document.getElementById('chat-history');
     if (!chatHistory) return;

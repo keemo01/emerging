@@ -5,7 +5,7 @@
 ## Akeem Jokosenumi - G00366442
 
 ## Project Overview
-The goal of this project is to construct and analyse a trigram-based model of the English language. It was finished in the notebook trigrams.ipynb. Python's built-in library is used for all jobs; no third-party libraries or APIs are used. The notebook adheres to Python coding standards for readability and efficiency and offers concise code explanations in Markdown cells.
+The goal of this project is to construct and analyse a trigram-based model of the English language and  create a client-side version of the ELIZA chatbot and deploying it to GitHub Pages.. It was finished in the notebook trigrams.ipynb. Python's built-in library is used for all jobs; no third-party libraries or APIs are used. The notebook adheres to Python coding standards for readability and efficiency and offers concise code explanations in Markdown cells.
 
 
 ## Tasks
@@ -42,6 +42,9 @@ The trigram model dictionary is converted to JSON format for data export.
 
 File storage: Preserving the JSON file for later usage or additional analysis in an organised, deciphered state.
 
+## Eliza Chatbot
+The project involes me making a client side version of the eliza chabot I could only use Html, CSS and Javascript for this project. The chatbot is meant to simulate human conversations and give a response it is then deployed on Github Pages using Github Actions
+
 ### Repository Contents
 trigrams.ipynb - Jupyter Notebook containing the code and explanations for all tasks.
 
@@ -51,12 +54,20 @@ words.txt - List of valid English words for analysis in Task 3.
 
 .gitignore - Specifies files and folders to ignore in version control.
 
+eliza.js - This is where we get the process for eliza to simulae communcation with the user
+
+Index.html - This is the basic layout of the Eliza UI the main page
+
+Style.css - Is the styling page we use to customise the page
+
 ### Software Requirements
 To get started with Jupyter Notebooks, install Anaconda, which includes Python and popular data science libraries. You’ll also need:
 
 Python (recommended to install via Anaconda)
 
 Jupyter Notebook
+
+For Eliza it must run without and external API or libraries and also include a UI with a textbox for user input and a sidebar for the conversation history abs
 
 ## Instructions for Running the Project
 
